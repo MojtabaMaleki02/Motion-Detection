@@ -2,19 +2,23 @@ from datetime import datetime
 import cv2
 import pandas as pd
 import time
+from moviepy.editor import *
 
 first_frame = None
 status_list = [None,None]
 times = []
+startTime=datetime.now()
+print(startTime)
 #Dataframe to store the time values during which object detection and movement appears
 df = pd.DataFrame(columns=['Start','End'])
-
-cam = cv2.VideoCapture("C:/Users/mojta/Desktop/pred.mp4")
-
+cam = cv2.VideoCapture("C:/Users/mojta/Desktop/videos/pred.mp4")
+length = int(cam.get(cv2.CAP_PROP_FRAME_COUNT))
+print(length)
 #Iterate through frames and display the window
 while cam.isOpened():
     check, frame = cam.read()
-
+    length-=1
+    
     #Status at beginning of the recording is zero as the object is not visisble
     status = 0
 
@@ -56,9 +60,9 @@ while cam.isOpened():
 
     #Record datetime in a list when change occurs
     if status_list[-1]==1 and status_list[-2]==0:
-        times.append(datetime.now())
+        times.append(datetime.now()-startTime)
     if status_list[-1]==0 and status_list[-2]==1:
-        times.append(datetime.now())
+        times.append(datetime.now()-startTime)
 
     #Opening all types of frames/images
     cv2.imshow("Grey Scale",gray)
@@ -70,17 +74,20 @@ while cam.isOpened():
     #Generate a new frame after every 1 millisecond
     key = cv2.waitKey(1)
     #If entered 'q' on keyboard, breaks out of loop, and window gets destroyed
-    if key == ord('q'):
+    
+    print(length)
+    if key == ord('q') or length==10:
         if status==1:
-            times.append(datetime.now())
+            times.append(datetime.now()-startTime)
         break
 
 #Store time values in a Dataframe
+
 for i in range(0,len(times),2):
     df = df.append({'Start':times[i],'End':times[i+1]}, ignore_index=True)
 
 #Write the dataframe to a CSV file
-df.to_csv("Times.csv")
+df.to_csv("Times.xlsx")
 
 cam.release()
 
