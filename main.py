@@ -18,7 +18,7 @@ class MainWindow(PyWidget.QWidget):
         self.layout().addWidget(my_label)
 
         my_text = PyWidget.QTextEdit(self,
-                                plainText="This is real text!",
+                                plainText="C:/Users/mojta/Desktop/videos/pred.mp4",
                                 acceptRichText=False,
                                 lineWrapColumnOrWidth=75,
                                 placeholderText="Hello World!",
@@ -119,7 +119,11 @@ class MainWindow(PyWidget.QWidget):
             #Store time values in a Dataframe
 
             for i in range(0,len(times),2):
-                df = df.append({'Start':times[i],'End':times[i+1]}, ignore_index=True)
+                if len(times)%2==1 and i==len(times)-1:
+                    break
+                df = df.append({'Start':times[i],'End':times[i+1],'Duration':times[i+1]-times[i]}, ignore_index=True)
+                print(i)
+                print(len(times))
 
             #Write the dataframe to a CSV file
             df.to_csv("Times.xlsx")
